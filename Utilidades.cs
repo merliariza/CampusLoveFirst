@@ -1,4 +1,4 @@
-namespace SistemaGestorV;
+namespace CampusLove;
 
 public class Utilidades
 {

@@ -1,8 +1,7 @@
-﻿using System;
-using CampusLove.domain.Factory;
-using CampusLove.Infrastructure.Pgsql;
-using Npgsql;
-using SistemaGestorV;
+﻿using CampusLove;
+using CampusLove.Application.UI.User;
+using CampusLove.Application.Services;
+using CampusLove.Domain.Interfaces; 
 
 internal class Program
 {   private static void MostrarBarraDeCarga()
@@ -18,61 +17,67 @@ internal class Program
         private static string MainMenu()
     {
         return @"
-    ===================================================================
+    ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
     ███████████████████████████████████████████████████████████████████
     ███─▄▄▄─██▀▄─██▄─▀█▀─▄█▄─▄▄─█▄─██─▄█─▄▄▄▄█▄─▄███─▄▄─█▄─█─▄█▄─▄▄─███
     ███─███▀██─▀─███─█▄█─███─▄▄▄██─██─██▄▄▄▄─██─██▀█─██─██▄▀▄███─▄█▀███
     ▀▀▀▄▄▄▄▄▀▄▄▀▄▄▀▄▄▄▀▄▄▄▀▄▄▄▀▀▀▀▄▄▄▄▀▀▄▄▄▄▄▀▄▄▄▄▄▀▄▄▄▄▀▀▀▄▀▀▀▄▄▄▄▄▀▀▀
-    ===================================================================
+    ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
                            1. Iniciar sesión
                            2. Registrarse
                            0. Salir
-    ===================================================================";
+    ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥";
     }
 
     static void Main(string[] args)
+{
+    string connStr = "Host=localhost;Database=db_campuslove;Port=5432;Username=postgres;password=root123;Pooling=true;";
+    IDbfactory factory = new NpgsqlDbFactory(connStr);
+
+    var userService = new UserService(factory.CreateUsersRepository());
+    var genderService = new GendersService(factory.CreateGendersRepository());
+    var careerService = new CareersService(factory.CreateCareersRepository());
+    var addressService = new AddressesService(factory.CreateAddressesRepository());
+
+    MostrarBarraDeCarga();
+
+    bool salir = false;
+    while (!salir)
     {
+        Console.Clear();
+        Console.WriteLine(MainMenu());
+        Console.Write("Seleccione una opción: ");
+        int opcion = CampusLove.Utilidades.LeerOpcionMenuKey(MainMenu());
+        Console.WriteLine();
 
-     string connStr = "Host=localhost;Database=db_campuslove;Port=5432;Username=postgres;Password=root123;Pooling=true;";
-        IDbfactory factory = new NpgsqlgDbFactory(connStr);
-
-        MostrarBarraDeCarga();
-
-        bool salir = false;
-        while (!salir)
+        switch (opcion)
         {
-            Console.Clear();
-            Console.WriteLine(MainMenu());
-            Console.Write("Seleccione una opción: ");
-            int opcion = SistemaGestorV.Utilidades.LeerOpcionMenuKey(MainMenu());
-            Console.WriteLine();
-
-            switch (opcion)
-            {
-                case 1:
-                    Console.Clear();
-                    Console.WriteLine("========= MENÚ DE INICIO DE SESIÓN =========");
-                    break;
-                case 2:
-                    Console.Clear();
-                    Console.WriteLine("========= MENÚ DE REGISTRO =========");
-                    break;
-                case 0:
-                    Console.WriteLine("¿Está seguro que desea salir? (S/N): ");
-                    salir = Utilidades.LeerTecla();
-                    break;
-                default:
-                    Console.WriteLine("Ingrese una opción válida.");
-                    break;
-            }
-
-            if (!salir)
-            {
-                Console.WriteLine("\nPresione cualquier tecla para continuar...");
-                Console.ReadKey();
-            }
+            case 1:
+                Console.Clear();
+                Console.WriteLine("========= MENÚ DE INICIO DE SESIÓN =========");
+                break;
+            case 2:
+                Console.Clear();
+                var registrar = new CreateUser(userService, genderService, careerService, addressService);
+                registrar.Ejecutar();
+                break;
+            case 0:
+                Console.WriteLine("¿Está seguro que desea salir? (S/N): ");
+                salir = Utilidades.LeerTecla();
+                break;
+            default:
+                Console.WriteLine("Ingrese una opción válida.");
+                break;
         }
-        Console.WriteLine("Presione cualquier tecla para salir...");
-        Console.ReadKey();
+
+        if (!salir)
+        {
+            Console.WriteLine("\nPresione cualquier tecla para continuar...");
+            Console.ReadKey();
+        }
     }
+
+    Console.WriteLine("Presione cualquier tecla para salir...");
+    Console.ReadKey();
+}
 }
