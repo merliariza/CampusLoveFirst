@@ -69,7 +69,7 @@ INSERT INTO Matches (id_user1, id_user2) VALUES
 (3, 1);
 
 -- Interactions
-INSERT INTO Interactions (id_user1, id_user2, interaction_type) VALUES 
+INSERT INTO Interactions (id_user_origin, id_user_target, interaction_type) VALUES 
 (1, 2, 'like'),
 (2, 3, 'dislike'),
 (3, 1, 'like');

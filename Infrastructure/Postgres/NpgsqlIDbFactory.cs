@@ -1,13 +1,32 @@
-using System;
-using CampusLove.domain.Factory;
-namespace CampusLove.Infrastructure.Pgsql;
-
-public class NpgsqlgDbFactory : IDbfactory
+namespace CampusLove.Domain.Interfaces
 {
-    private readonly string _connectionString;
-
-    public NpgsqlgDbFactory(string connectionString)
+    public class NpgsqlDbFactory : IDbfactory
     {
-        _connectionString = connectionString;
+        private readonly string _connectionString;
+
+        public NpgsqlDbFactory(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
+        public IUsersRepository CreateUsersRepository()
+        {
+            return new PgsqlUsersRepository(_connectionString);
+        }
+
+        public IGendersRepository CreateGendersRepository()
+        {
+            return new PgsqlGendersRepository(_connectionString);
+        }
+
+        public ICareersRepository CreateCareersRepository()
+        {
+            return new PgsqlCareersRepository(_connectionString);
+        }
+
+        public IAddressesRepository CreateAddressesRepository()
+        {
+            return new PgsqlAddressesRepository(_connectionString);
+        }
     }
 }
