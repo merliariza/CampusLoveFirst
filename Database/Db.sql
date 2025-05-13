@@ -70,7 +70,6 @@ CREATE TABLE Users (
     id_career INT NOT NULL,
     id_address INT NOT NULL,
     profile_phrase VARCHAR(200),
-    active BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (id_address) REFERENCES Addresses(id_address),
     FOREIGN KEY (id_gender) REFERENCES Genders(id_gender),
     FOREIGN KEY (id_career) REFERENCES Careers(id_career)
@@ -112,8 +111,6 @@ CREATE TABLE Matches (
     id_user1 INT NOT NULL,
     id_user2 INT NOT NULL,
     match_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    active BOOLEAN DEFAULT TRUE,
-    CHECK (id_user1 < id_user2),
     FOREIGN KEY (id_user1) REFERENCES Users(id_user),
     FOREIGN KEY (id_user2) REFERENCES Users(id_user),
     UNIQUE (id_user1, id_user2)

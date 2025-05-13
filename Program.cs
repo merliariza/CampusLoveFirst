@@ -1,5 +1,7 @@
-﻿using System;
-using Npgsql;
+﻿using CampusLove;
+using CampusLove.Application.UI.User;
+using CampusLove.Application.Services;
+using CampusLove.Domain.Interfaces; 
 
 internal class Program
 {   private static void MostrarBarraDeCarga()
@@ -12,20 +14,71 @@ internal class Program
         }
         Console.WriteLine("\n");
     }
-    static void Main(string[] args)
+        private static string MainMenu()
     {
-        string connStr = "Host=localhost;Database=db_campuslove;Port=5432;Username=postgres;Password=root123;Pooling=true;";
-        using var conn = new NpgsqlConnection(connStr);
-        MostrarBarraDeCarga();
-        try
+        return @"
+    ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
+    ███████████████████████████████████████████████████████████████████
+    ███─▄▄▄─██▀▄─██▄─▀█▀─▄█▄─▄▄─█▄─██─▄█─▄▄▄▄█▄─▄███─▄▄─█▄─█─▄█▄─▄▄─███
+    ███─███▀██─▀─███─█▄█─███─▄▄▄██─██─██▄▄▄▄─██─██▀█─██─██▄▀▄███─▄█▀███
+    ▀▀▀▄▄▄▄▄▀▄▄▀▄▄▀▄▄▄▀▄▄▄▀▄▄▄▀▀▀▀▄▄▄▄▀▀▄▄▄▄▄▀▄▄▄▄▄▀▄▄▄▄▀▀▀▄▀▀▀▄▄▄▄▄▀▀▀
+    ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
+                           1. Iniciar sesión
+                           2. Registrarse
+                           0. Salir
+    ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥";
+    }
+
+    static void Main(string[] args)
+{
+    string connStr = "Host=localhost;Database=db_campuslove;Port=5432;Username=postgres;password=root123;Pooling=true;";
+    IDbfactory factory = new NpgsqlDbFactory(connStr);
+
+    var userService = new UserService(factory.CreateUsersRepository());
+    var genderService = new GendersService(factory.CreateGendersRepository());
+    var careerService = new CareersService(factory.CreateCareersRepository());
+    var addressService = new AddressesService(factory.CreateAddressesRepository());
+
+    MostrarBarraDeCarga();
+
+    bool salir = false;
+    while (!salir)
+    {
+        Console.Clear();
+        Console.WriteLine(MainMenu());
+        Console.Write("Seleccione una opción: ");
+        int opcion = CampusLove.Utilidades.LeerOpcionMenuKey(MainMenu());
+        Console.WriteLine();
+
+        switch (opcion)
         {
-            conn.Open();
-            Console.WriteLine("✅ ¡Conexión exitosa a la base de datos!");
+            case 1:
+                Console.Clear();
+                var login = new LoginUser(userService);
+                login.Ejecutar();
+                break;
+            case 2:
+                Console.Clear();
+                var registrar = new CreateUser(userService, genderService, careerService, addressService);
+                registrar.Ejecutar();
+                break;
+            case 0:
+                Console.WriteLine("¿Está seguro que desea salir? (S/N): ");
+                salir = Utilidades.LeerTecla();
+                break;
+            default:
+                Console.WriteLine("Ingrese una opción válida.");
+                break;
         }
-        catch (Exception ex)
+
+        if (!salir)
         {
-            Console.WriteLine("❌ Error al conectar a la base de datos:");
-            Console.WriteLine(ex.Message);
+            Console.WriteLine("\nPresione cualquier tecla para continuar...");
+            Console.ReadKey();
         }
     }
+
+    Console.WriteLine("Presione cualquier tecla para salir...");
+    Console.ReadKey();
+}
 }
