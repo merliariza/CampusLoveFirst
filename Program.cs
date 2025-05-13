@@ -54,7 +54,8 @@ internal class Program
         {
             case 1:
                 Console.Clear();
-                Console.WriteLine("========= MENÚ DE INICIO DE SESIÓN =========");
+                var login = new LoginUser(userService);
+                login.Ejecutar();
                 break;
             case 2:
                 Console.Clear();
