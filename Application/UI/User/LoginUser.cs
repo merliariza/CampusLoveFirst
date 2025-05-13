@@ -24,7 +24,7 @@ namespace CampusLove.Application.UI.User
 
             if (usuario == null)
             {
-                Console.WriteLine("❌ Usuario no encontrado. Regístrate primero.");
+                Console.WriteLine("Usuario no encontrado. Regístrate primero.");
                 return;
             }
 
@@ -38,7 +38,7 @@ namespace CampusLove.Application.UI.User
 
                 if (usuario.password == password)
                 {
-                    Console.WriteLine($"✅ Bienvenido/a {usuario.first_name} {usuario.last_name}!");
+                    Console.WriteLine($"Bienvenido/a {usuario.first_name} {usuario.last_name}!");
                     return; 
                 }
                 else
@@ -46,12 +46,12 @@ namespace CampusLove.Application.UI.User
                     intentos++;
                     if (intentos < maxIntentos)
                     {
-                        Console.WriteLine("❌ Contraseña incorrecta. Intenta nuevamente.");
+                        Console.WriteLine("Contraseña incorrecta. Intenta nuevamente.");
                     }
                 }
             }
 
-            Console.WriteLine("❌ Has excedido el número de intentos permitidos. Intenta más tarde.");
+            Console.WriteLine("Has excedido el número de intentos permitidos. Intenta más tarde.");
         }
     }
 }
