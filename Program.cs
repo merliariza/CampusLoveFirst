@@ -1,5 +1,8 @@
 ﻿using System;
+using CampusLove.domain.Factory;
+using CampusLove.Infrastructure.Pgsql;
 using Npgsql;
+using SistemaGestorV;
 
 internal class Program
 {   private static void MostrarBarraDeCarga()
@@ -12,20 +15,64 @@ internal class Program
         }
         Console.WriteLine("\n");
     }
+        private static string MainMenu()
+    {
+        return @"
+    ===================================================================
+    ███████████████████████████████████████████████████████████████████
+    ███─▄▄▄─██▀▄─██▄─▀█▀─▄█▄─▄▄─█▄─██─▄█─▄▄▄▄█▄─▄███─▄▄─█▄─█─▄█▄─▄▄─███
+    ███─███▀██─▀─███─█▄█─███─▄▄▄██─██─██▄▄▄▄─██─██▀█─██─██▄▀▄███─▄█▀███
+    ▀▀▀▄▄▄▄▄▀▄▄▀▄▄▀▄▄▄▀▄▄▄▀▄▄▄▀▀▀▀▄▄▄▄▀▀▄▄▄▄▄▀▄▄▄▄▄▀▄▄▄▄▀▀▀▄▀▀▀▄▄▄▄▄▀▀▀
+    ===================================================================
+                           1. Iniciar sesión
+                           2. Registrarse
+                           0. Salir
+    ===================================================================";
+    }
+
     static void Main(string[] args)
     {
-        string connStr = "Host=localhost;Database=db_campuslove;Port=5432;Username=postgres;Password=root123;Pooling=true;";
-        using var conn = new NpgsqlConnection(connStr);
+
+     string connStr = "Host=localhost;Database=db_campuslove;Port=5432;Username=postgres;Password=root123;Pooling=true;";
+        IDbfactory factory = new NpgsqlgDbFactory(connStr);
+
         MostrarBarraDeCarga();
-        try
+
+        bool salir = false;
+        while (!salir)
         {
-            conn.Open();
-            Console.WriteLine("✅ ¡Conexión exitosa a la base de datos!");
+            Console.Clear();
+            Console.WriteLine(MainMenu());
+            Console.Write("Seleccione una opción: ");
+            int opcion = SistemaGestorV.Utilidades.LeerOpcionMenuKey(MainMenu());
+            Console.WriteLine();
+
+            switch (opcion)
+            {
+                case 1:
+                    Console.Clear();
+                    Console.WriteLine("========= MENÚ DE INICIO DE SESIÓN =========");
+                    break;
+                case 2:
+                    Console.Clear();
+                    Console.WriteLine("========= MENÚ DE REGISTRO =========");
+                    break;
+                case 0:
+                    Console.WriteLine("¿Está seguro que desea salir? (S/N): ");
+                    salir = Utilidades.LeerTecla();
+                    break;
+                default:
+                    Console.WriteLine("Ingrese una opción válida.");
+                    break;
+            }
+
+            if (!salir)
+            {
+                Console.WriteLine("\nPresione cualquier tecla para continuar...");
+                Console.ReadKey();
+            }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine("❌ Error al conectar a la base de datos:");
-            Console.WriteLine(ex.Message);
-        }
+        Console.WriteLine("Presione cualquier tecla para salir...");
+        Console.ReadKey();
     }
 }

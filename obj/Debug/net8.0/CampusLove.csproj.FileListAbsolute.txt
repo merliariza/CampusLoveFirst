@@ -17,3 +17,4 @@ C:\Users\merli\Downloads\CampusLove\obj\Debug\net8.0\refint\CampusLove.dll
 C:\Users\merli\Downloads\CampusLove\obj\Debug\net8.0\CampusLove.pdb
 C:\Users\merli\Downloads\CampusLove\obj\Debug\net8.0\CampusLove.genruntimeconfig.cache
 C:\Users\merli\Downloads\CampusLove\obj\Debug\net8.0\ref\CampusLove.dll
+C:\Users\merli\Downloads\CampusLove\obj\Debug\net8.0\CampusLove.sourcelink.json
