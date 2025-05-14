@@ -1,3 +1,5 @@
+using CampusLove.Infrastructure.Repositories;
+
 namespace CampusLove.Domain.Interfaces
 {
     public class NpgsqlDbFactory : IDbfactory
@@ -27,6 +29,10 @@ namespace CampusLove.Domain.Interfaces
         public IAddressesRepository CreateAddressesRepository()
         {
             return new PgsqlAddressesRepository(_connectionString);
+        }
+        public IInterestsRepository CreateInterestsRepository()
+        {
+            return new PgsqlInterestsRepository(_connectionString);
         }
     }
 }

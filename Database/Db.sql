@@ -27,8 +27,8 @@ CREATE TABLE Cities(
 CREATE TABLE Addresses(
     id_address SERIAL PRIMARY KEY,
     id_city INTEGER,
-    street_number CHARACTER VARYING(10),
-    street_name CHARACTER VARYING(50),  
+    street_number CHARACTER VARYING(10) NOT NULL,
+    street_name CHARACTER VARYING(50) NOT NULL,
     FOREIGN KEY (id_city) REFERENCES Cities(id_city)
 );
 

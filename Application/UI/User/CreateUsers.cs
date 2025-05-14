@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-
 using CampusLove.Domain.Entities;
 using CampusLove.Application.Services;
 
@@ -12,22 +11,34 @@ namespace CampusLove.Application.UI.User
         private readonly GendersService _genderService;
         private readonly CareersService _careerService;
         private readonly AddressesService _addressService;
+        private readonly InterestsService _interestsService;
 
-        public CreateUser(UserService servicio, GendersService genderService, CareersService careerService, AddressesService addressService)
+        public CreateUser(UserService servicio, GendersService genderService, CareersService careerService, AddressesService addressService, InterestsService interestsService)
         {
             _servicio = servicio;
             _genderService = genderService;
             _careerService = careerService;
             _addressService = addressService;
+            _interestsService = interestsService;
         }
 
         public void Ejecutar()
         {
             var user = new Users();
-            Console.Clear();
-            Console.WriteLine("♥♥♥♥♥♥♥ CREAR USUARIO ♥♥♥♥♥♥♥");
 
-            // Nombre
+            CapturarDatosPersonales(user);
+            CapturarDatosAcademicos(user);
+            CapturarDireccion(user);
+            CapturarPerfil(user);
+
+            _servicio.CrearUser(user);
+            Console.WriteLine("\n✅ Usuario creado con éxito.");
+        }
+
+        private void CapturarDatosPersonales(Users user)
+        {
+            MostrarSeccion("Sección 1 de 4: DATOS PERSONALES");
+
             Console.Write("Nombre: ");
             user.first_name = Console.ReadLine()?.Trim() ?? string.Empty;
             while (string.IsNullOrWhiteSpace(user.first_name) || ContieneNumeros(user.first_name))
@@ -36,7 +47,6 @@ namespace CampusLove.Application.UI.User
                 user.first_name = Console.ReadLine()?.Trim() ?? string.Empty;
             }
 
-            // Apellido
             Console.Write("Apellido: ");
             user.last_name = Console.ReadLine()?.Trim() ?? string.Empty;
             while (string.IsNullOrWhiteSpace(user.last_name) || ContieneNumeros(user.last_name))
@@ -45,97 +55,200 @@ namespace CampusLove.Application.UI.User
                 user.last_name = Console.ReadLine()?.Trim() ?? string.Empty;
             }
 
-            // Email
             Console.Write("Email: ");
             user.email = Console.ReadLine()?.Trim() ?? string.Empty;
-
             var (valido, mensaje) = EsEmailValido(user.email);
             while (!valido || _servicio.ExisteEmail(user.email))
             {
                 if (!valido)
-                {
-                    Console.WriteLine($"❌ {mensaje}");
-                }
-                else if (_servicio.ExisteEmail(user.email))
-                {
-                    Console.WriteLine("❌ El email ya está registrado. Intente con otro.");
-                }
+                    Console.WriteLine($" {mensaje}");
+                else
+                    Console.WriteLine(" El email ya está registrado. Intente con otro.");
 
                 Console.Write("Ingrese un nuevo email: ");
                 user.email = Console.ReadLine()?.Trim() ?? string.Empty;
                 (valido, mensaje) = EsEmailValido(user.email);
             }
 
-            // Contraseña
             Console.Write("Contraseña: ");
             user.password = Console.ReadLine()?.Trim() ?? string.Empty;
             while (string.IsNullOrWhiteSpace(user.password) || user.password.Length < 8)
             {
-                Console.Write("❌ Contraseña inválida (mínimo 8 caracteres). Ingrese nuevamente: ");
+                Console.Write(" Contraseña inválida (mínimo 8 caracteres). Ingrese nuevamente: ");
                 user.password = Console.ReadLine()?.Trim() ?? string.Empty;
             }
 
-            // Fecha de nacimiento
             Console.Write("Fecha de nacimiento (yyyy-mm-dd): ");
             DateTime birthDate;
             while (!DateTime.TryParse(Console.ReadLine(), out birthDate))
             {
-                Console.Write("❌ Fecha inválida. Ingrese nuevamente (yyyy-mm-dd): ");
+                Console.Write(" Fecha inválida. Ingrese nuevamente (yyyy-mm-dd): ");
             }
             user.birth_date = birthDate;
+        }
 
-            // GÉNERO
+        private void CapturarDatosAcademicos(Users user)
+        {
+            MostrarSeccion("Sección 2 de 4: DATOS ACADÉMICOS");
+
             var generos = _genderService.GetAll();
             Console.WriteLine("Seleccione su género:");
             foreach (var g in generos)
                 Console.WriteLine($"{g.id_gender}. {g.genre_name}");
+
             int id_gender;
             while (true)
             {
                 Console.Write("Opción: ");
                 if (int.TryParse(Console.ReadLine(), out id_gender) && generos.Any(g => g.id_gender == id_gender))
                     break;
-                Console.WriteLine("❌ Opción inválida. Ingrese una opción válida.");
+                Console.WriteLine(" Opción inválida.");
             }
             user.id_gender = id_gender;
 
-            // CARRERA
             var carreras = _careerService.GetAll();
             Console.WriteLine("Seleccione su carrera:");
             foreach (var c in carreras)
                 Console.WriteLine($"{c.id_career}. {c.career_name}");
+
             int id_career;
             while (true)
             {
                 Console.Write("Opción: ");
                 if (int.TryParse(Console.ReadLine(), out id_career) && carreras.Any(c => c.id_career == id_career))
                     break;
-                Console.WriteLine("❌ Opción inválida. Ingrese una opción válida.");
+                Console.WriteLine(" Opción inválida.");
             }
             user.id_career = id_career;
+        }
 
-            // DIRECCIÓN
-            var direcciones = _addressService.GetAll();
-            Console.WriteLine("Seleccione su dirección:");
-            foreach (var d in direcciones)
-                Console.WriteLine($"{d.id_address}. {d.id_city}");
-            int id_address;
+        private void CapturarDireccion(Users user)
+        {
+            MostrarSeccion("Sección 3 de 4: DIRECCIÓN");
+
+            var paises = _addressService.GetAllCountries();
+            Console.WriteLine("Seleccione su país:");
+            foreach (var p in paises)
+                Console.WriteLine($"{p.id_country}. {p.name_country}");
+
+            int id_country;
             while (true)
             {
                 Console.Write("Opción: ");
-                if (int.TryParse(Console.ReadLine(), out id_address) && direcciones.Any(d => d.id_address == id_address))
+                if (int.TryParse(Console.ReadLine(), out id_country) && paises.Any(p => p.id_country == id_country))
                     break;
-                Console.WriteLine("❌ Opción inválida. Ingrese una opción válida.");
+                Console.WriteLine(" Opción inválida.");
             }
-            user.id_address = id_address;
 
-            // Frase de perfil
+            var estados = _addressService.GetStatesByCountry(id_country);
+            Console.WriteLine("Seleccione su estado:");
+            foreach (var s in estados)
+                Console.WriteLine($"{s.id_state}. {s.state_name}");
+
+            int id_state;
+            while (true)
+            {
+                Console.Write("Opción: ");
+                if (int.TryParse(Console.ReadLine(), out id_state) && estados.Any(s => s.id_state == id_state))
+                    break;
+                Console.WriteLine(" Opción inválida.");
+            }
+
+            var ciudades = _addressService.GetCitiesByState(id_state);
+            Console.WriteLine("Seleccione su ciudad:");
+            foreach (var c in ciudades)
+                Console.WriteLine($"{c.id_city}. {c.city_name}");
+
+            int id_city;
+            while (true)
+            {
+                Console.Write("Opción: ");
+                if (int.TryParse(Console.ReadLine(), out id_city) && ciudades.Any(c => c.id_city == id_city))
+                    break;
+                Console.WriteLine(" Opción inválida.");
+            }
+
+            Console.Write("Número de calle: ");
+            string street_number = Console.ReadLine()?.Trim().ToUpper() ?? "";
+            while (string.IsNullOrWhiteSpace(street_number))
+            {
+                Console.Write(" Ingrese un número válido: ");
+                street_number = Console.ReadLine()?.Trim().ToUpper() ?? "";
+            }
+
+            Console.Write("Nombre de la calle: ");
+            string street_name = Console.ReadLine()?.Trim().ToUpper() ?? "";
+            while (string.IsNullOrWhiteSpace(street_name))
+            {
+                Console.Write(" Ingrese un nombre válido: ");
+                street_name = Console.ReadLine()?.Trim().ToUpper() ?? "";
+            }
+
+            var nuevaDireccion = new Addresses
+            {
+                id_city = id_city,
+                street_number = street_number,
+                street_name = street_name
+            };
+
+            int id_address = _addressService.ObtenerOCrearDireccion(nuevaDireccion);
+            user.id_address = id_address;
+        }
+
+        private void CapturarPerfil(Users user)
+        {
+            MostrarSeccion("Sección 4 de 4: PERFIL");
+
             Console.Write("Frase de perfil: ");
             user.profile_phrase = Console.ReadLine()?.Trim() ?? string.Empty;
 
-            // Crear usuario
-            _servicio.CrearUser(user);
-            Console.WriteLine("✅ Usuario creado con éxito.");
+            var categorias = _interestsService.GetAllInterestsCategory();
+            Console.WriteLine("Seleccione una categoría de interés:");
+            foreach (var cat in categorias)
+                Console.WriteLine($"{cat.id_category}. {cat.interest_category}");
+
+            int id_categoria;
+            while (true)
+            {
+                Console.Write("Opción: ");
+                if (int.TryParse(Console.ReadLine(), out id_categoria) && categorias.Any(c => c.id_category == id_categoria))
+                    break;
+                Console.WriteLine(" Opción inválida.");
+            }
+
+            var intereses = _interestsService.GetAll()
+                .Where(i => i.id_category == id_categoria)
+                .ToList();
+
+            if (!intereses.Any())
+            {
+                Console.WriteLine("No hay intereses disponibles para esta categoría.");
+                return;
+            }
+
+            Console.WriteLine("Seleccione un interés:");
+            foreach (var i in intereses)
+                Console.WriteLine($"{i.id_interest}. {i.interest_name}");
+
+            int id_interest;
+            while (true)
+            {
+                Console.Write("Opción: ");
+                if (int.TryParse(Console.ReadLine(), out id_interest) && intereses.Any(i => i.id_interest == id_interest))
+                    break;
+                Console.WriteLine(" Opción inválida.");
+            }
+
+            user.id_interest = id_interest;
+        }
+
+
+        private void MostrarSeccion(string titulo)
+        {
+            Console.Clear();
+            Console.WriteLine($"{titulo}\nPresione ENTER para continuar...");
+            Console.ReadKey();
+            Console.Clear();
         }
 
         private bool ContieneNumeros(string texto)
@@ -147,15 +260,12 @@ namespace CampusLove.Application.UI.User
         {
             if (string.IsNullOrWhiteSpace(email))
                 return (false, "El email no puede estar vacío.");
-
             if (!email.Contains("@"))
                 return (false, "El email debe contener '@'.");
-
             if (!email.Contains("."))
                 return (false, "El email debe contener al menos un punto '.'.");
 
             return (true, string.Empty);
         }
-
     }
 }

@@ -8,5 +8,6 @@ namespace CampusLove.Domain.Interfaces
         IAddressesRepository CreateAddressesRepository();
         ICareersRepository CreateCareersRepository();
         IGendersRepository CreateGendersRepository();
+        IInterestsRepository CreateInterestsRepository();
     }
 }

@@ -12,5 +12,7 @@ namespace CampusLove.Domain.Entities
         public int id_career { get; set; }
         public int id_address { get; set; }
         public string profile_phrase { get; set; } = string.Empty;
+        public int id_interest { get; set; }
+
     }
 }
