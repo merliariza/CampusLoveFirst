@@ -37,7 +37,7 @@ internal class Program
     var userService = new UserService(factory.CreateUsersRepository());
     var genderService = new GendersService(factory.CreateGendersRepository());
     var careerService = new CareersService(factory.CreateCareersRepository());
-    var addressService = new AddressesService(factory.CreateAddressesRepository());
+    var addressService = new AddressesService(factory.CreateAddressesRepository(), connStr);
 
     MostrarBarraDeCarga();
 

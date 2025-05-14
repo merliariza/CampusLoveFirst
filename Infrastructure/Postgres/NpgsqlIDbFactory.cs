@@ -1,3 +1,5 @@
+using CampusLove.Infrastructure.Repositories;
+
 namespace CampusLove.Domain.Interfaces
 {
     public class NpgsqlDbFactory : IDbfactory
