@@ -6,7 +6,7 @@ using CampusLove.Application.Services;
 
 namespace CampusLove.Application.UI.User
 {
-    public class ViewMyProfile
+    public class ProfileViewer
     {
         private readonly UserService _userService;
         private readonly UsersInterestsService _usersInterestsService;
@@ -16,7 +16,7 @@ namespace CampusLove.Application.UI.User
         private readonly AddressesService _addressesService;
         private readonly dynamic _currentUser;
 
-        public ViewMyProfile(UserService userService,
+        public ProfileViewer(UserService userService,
                              UsersInterestsService usersInterestsService,
                              InterestsService interestsService,
                              GendersService gendersService,
@@ -33,21 +33,66 @@ namespace CampusLove.Application.UI.User
             _currentUser = currentUser;
         }
 
-        public string ProfileTitle()
-        {
-            return "";
-        }
-
-        public string GetMyProfileString()
+        public void BrowseProfiles()
         {
             Console.Clear();
-            var user = _userService.ObtenerPorId(_currentUser.id_user);
-            if (user == null)
+            var allUsers = _userService.ObtenerTodos();
+            var otherUsers = allUsers
+                .Where(u => u.id_user != _currentUser.id_user)
+                .ToList();
+
+            if (!otherUsers.Any())
             {
-                return
-            @"❌ Error: No se pudo cargar tu perfil.";
+                Console.WriteLine("❌ No hay perfiles para mostrar.");
+                return;
             }
 
+            int index = 0;
+
+            while (true)
+            {
+                Console.Clear();
+                var user = otherUsers[index];
+                ShowProfile(user);
+
+                Console.WriteLine(@"
+¿Qué deseas hacer?
+    [L] Like
+    [D] Dislike
+    [N] Siguiente
+    [P] Anterior
+    [S] Salir
+");
+                var option = Console.ReadLine()?.Trim().ToUpper();
+
+                switch (option)
+                {
+                    case "L":
+                        Console.WriteLine($"💖 Diste like a {user.first_name}.");
+                        break;
+                    case "D":
+                        Console.WriteLine($"👎 Diste dislike a {user.first_name}.");
+                        break;
+                    case "N":
+                        index = (index + 1) % otherUsers.Count;
+                        break;
+                    case "P":
+                        index = (index - 1 + otherUsers.Count) % otherUsers.Count;
+                        break;
+                    case "S":
+                        return;
+                    default:
+                        Console.WriteLine("⚠️ Opción no válida.");
+                        break;
+                }
+
+                Console.WriteLine("Presiona una tecla para continuar...");
+                Console.ReadKey();
+            }
+        }
+
+        private void ShowProfile(CampusLove.Domain.Entities.Users user)
+        {
             var gender = _gendersService.GetById(user.id_gender)?.genre_name ?? "No especificado";
             var career = _careersService.GetById(user.id_career)?.career_name ?? "No especificado";
             var address = _addressesService.GetFullAddress(user.id_address);
@@ -56,35 +101,31 @@ namespace CampusLove.Application.UI.User
             var interests = userInterests
                 .Select(ui => _interestsService.GetById(ui.id_interest)?.interest_name)
                 .Where(i => i != null);
-            string interestsList = string.Join(Environment.NewLine,
-                interests.Select(i => "                        - " + i)); 
+
+            string interestsList = string.Join(Environment.NewLine, interests.Select(i => "                        - " + i));
+
             Console.InputEncoding = System.Text.Encoding.UTF8;
             Console.Clear();
-            return
-            $@"
+            Console.WriteLine($@"
                 ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
                 ███████████████████████████████████████████████████████████████████
                 ███─▄▄▄─██▀▄─██▄─▀█▀─▄█▄─▄▄─█▄─██─▄█─▄▄▄▄█▄─▄███─▄▄─█▄─█─▄█▄─▄▄─███
                 ███─███▀██─▀─███─█▄█─███─▄▄▄██─██─██▄▄▄▄─██─██▀█─██─██▄▀▄███─▄█▀███
                 ▀▀▀▄▄▄▄▄▀▄▄▀▄▄▀▄▄▄▀▄▄▄▀▄▄▄▀▀▀▀▄▄▄▄▀▀▄▄▄▄▄▀▄▄▄▄▄▀▄▄▄▄▀▀▀▄▀▀▀▄▄▄▄▄▀▀▀
-                                    
-                                    𝚃𝚞 𝚒𝚗𝚏𝚘𝚛𝚖𝚊𝚌𝚒𝚘́𝚗 𝚙𝚎𝚛𝚜𝚘𝚗𝚊𝚕
 
                     👤 Nombre: {user.first_name} {user.last_name}
                     🎂 Edad: {CalculateAge(user.birth_date)} años
                     📧 Email: {user.email}
                     🚻 Género: {gender}
                     🎓 Carrera: {career}
-
                     💬 Frase de perfil: ""{user.profile_phrase}""
-
                     🏠 Ubicación: {address}
 
                     ❤️ Intereses:
 {interestsList}
 
                 ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
-";
+");
         }
 
         private int CalculateAge(DateTime birthDate)

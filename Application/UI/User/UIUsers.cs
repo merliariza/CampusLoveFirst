@@ -65,7 +65,16 @@ namespace CampusLove.Application.UI.User
             switch (input)
             {
                 case "1":
-                    Console.WriteLine("Funcionalidad para ver perfiles y dar Like o Dislike.");
+                Console.Clear();
+                    var viewer = new ProfileViewer(
+                        _userService,
+                        _usersInterestsService,
+                        _interestsService,
+                        _gendersService,
+                        _careersService,
+                        _addressesService,
+                        _usuario);
+                    viewer.BrowseProfiles();
                     break;
                 case "2":
                     Console.WriteLine("Funcionalidad para ver mis coincidencias.");
@@ -74,7 +83,7 @@ namespace CampusLove.Application.UI.User
                     Console.WriteLine("Funcionalidad para ver estadísticas.");
                     break;
                 case "4":
-                    Console.WriteLine("Funcionalidad para ver mi perfil.");
+                Console.Clear();
                     var viewProfile = new ViewMyProfile(
                         _userService,
                         _usersInterestsService,
