@@ -38,6 +38,7 @@ namespace CampusLove.Application.UI.User
 
                 if (usuario.password == password)
                 {
+                    Console.Clear();
                     var uiUsers = new UIUsers(_userService, usuario);
                     uiUsers.Ejecutar();
                     return;

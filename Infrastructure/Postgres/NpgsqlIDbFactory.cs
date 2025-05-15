@@ -34,5 +34,9 @@ namespace CampusLove.Domain.Interfaces
         {
             return new PgsqlInterestsRepository(_connectionString);
         }
+        public IUsersInterestsRepository CreateUsersInterestsRepository()
+        {
+            return new PgsqlUsersInterestsRepository(_connectionString);
+        }
     }
 }

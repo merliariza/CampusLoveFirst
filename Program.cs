@@ -39,7 +39,8 @@ internal class Program
     var careerService = new CareersService(factory.CreateCareersRepository());
     var addressService = new AddressesService(factory.CreateAddressesRepository(), connStr);
     var interestsService = new InterestsService(factory.CreateInterestsRepository(), connStr);
-
+    var userInterestsService = new UsersInterestsService(factory.CreateUsersInterestsRepository());
+    
     MostrarBarraDeCarga();
 
     bool salir = false;
@@ -60,7 +61,7 @@ internal class Program
                 break;
             case 2:
                 Console.Clear();
-                var registrar = new CreateUser(userService, genderService, careerService, addressService, interestsService);
+                var registrar = new CreateUser(userService, genderService, careerService, addressService, interestsService, userInterestsService);
                 registrar.Ejecutar();
                 break;
             case 0:

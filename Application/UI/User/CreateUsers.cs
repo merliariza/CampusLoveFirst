@@ -12,14 +12,18 @@ namespace CampusLove.Application.UI.User
         private readonly CareersService _careerService;
         private readonly AddressesService _addressService;
         private readonly InterestsService _interestsService;
+        private readonly UsersInterestsService _usersInterestsService;
 
-        public CreateUser(UserService servicio, GendersService genderService, CareersService careerService, AddressesService addressService, InterestsService interestsService)
+        public CreateUser(UserService servicio, GendersService genderService, CareersService careerService, 
+                         AddressesService addressService, InterestsService interestsService, 
+                         UsersInterestsService usersInterestsService)
         {
             _servicio = servicio;
             _genderService = genderService;
             _careerService = careerService;
             _addressService = addressService;
             _interestsService = interestsService;
+            _usersInterestsService = usersInterestsService;
         }
 
         public void Ejecutar()
@@ -29,9 +33,19 @@ namespace CampusLove.Application.UI.User
             CapturarDatosPersonales(user);
             CapturarDatosAcademicos(user);
             CapturarDireccion(user);
-            CapturarPerfil(user);
-
+            
+            // Crear el usuario y obtener el usuario completo con ID
             _servicio.CrearUser(user);
+            var usuarioCreado = _servicio.GetByEmail(user.email);
+            
+            if (usuarioCreado == null)
+            {
+                Console.WriteLine("\n❌ Error al crear el usuario. No se pudo recuperar el usuario creado.");
+                return;
+            }
+            
+            CapturarPerfil(usuarioCreado);
+
             Console.WriteLine("\n✅ Usuario creado con éxito.");
         }
 
@@ -201,47 +215,79 @@ namespace CampusLove.Application.UI.User
 
             Console.Write("Frase de perfil: ");
             user.profile_phrase = Console.ReadLine()?.Trim() ?? string.Empty;
-
-            var categorias = _interestsService.GetAllInterestsCategory();
-            Console.WriteLine("Seleccione una categoría de interés:");
-            foreach (var cat in categorias)
-                Console.WriteLine($"{cat.id_category}. {cat.interest_category}");
-
-            int id_categoria;
-            while (true)
+            while (string.IsNullOrWhiteSpace(user.profile_phrase))
             {
-                Console.Write("Opción: ");
-                if (int.TryParse(Console.ReadLine(), out id_categoria) && categorias.Any(c => c.id_category == id_categoria))
-                    break;
-                Console.WriteLine(" Opción inválida.");
+                Console.Write("❌ La frase de perfil no puede estar vacía. Ingrese nuevamente: ");
+                user.profile_phrase = Console.ReadLine()?.Trim() ?? string.Empty;
             }
+            
+            _servicio.Actualizar(user);
 
-            var intereses = _interestsService.GetAll()
+            bool agregarOtro = true;
+            while (agregarOtro)
+            {
+                var categorias = _interestsService.GetAllInterestsCategory();
+                Console.WriteLine("Seleccione una categoría de interés:");
+                foreach (var cat in categorias)
+                    Console.WriteLine($"{cat.id_category}. {cat.interest_category}");
+
+                int id_categoria;
+                while (true)
+                {
+                    Console.Write("Opción: ");
+                    if (int.TryParse(Console.ReadLine(), out id_categoria) && categorias.Any(c => c.id_category == id_categoria))
+                        break;
+                    Console.WriteLine(" Opción inválida.");
+                }
+
+                var intereses = _interestsService.GetAll()
                 .Where(i => i.id_category == id_categoria)
                 .ToList();
 
             if (!intereses.Any())
             {
                 Console.WriteLine("No hay intereses disponibles para esta categoría.");
-                return;
+                continue;
             }
 
             Console.WriteLine("Seleccione un interés:");
-            foreach (var i in intereses)
-                Console.WriteLine($"{i.id_interest}. {i.interest_name}");
+            for (int idx = 0; idx < intereses.Count; idx++)
+            {
+                Console.WriteLine($"{idx + 1}. {intereses[idx].interest_name}");
+            }
 
-            int id_interest;
+            int opcionInterest;
             while (true)
             {
                 Console.Write("Opción: ");
-                if (int.TryParse(Console.ReadLine(), out id_interest) && intereses.Any(i => i.id_interest == id_interest))
+                if (int.TryParse(Console.ReadLine(), out opcionInterest) 
+                    && opcionInterest >= 1 && opcionInterest <= intereses.Count)
+                {
                     break;
+                }
                 Console.WriteLine(" Opción inválida.");
             }
 
-            user.id_interest = id_interest;
-        }
+            int id_interest = intereses[opcionInterest - 1].id_interest;
 
+            try
+            {
+                _usersInterestsService.Guardar(user.id_user, id_interest);
+                Console.WriteLine("✅ Interés agregado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error al agregar interés: {ex.Message}");
+            }
+             Console.Write("¿Desea agregar otro interés? (s/n): ");
+                string respuesta = Console.ReadLine()?.Trim().ToLower();
+                agregarOtro = respuesta == "s";
+            if (!agregarOtro) 
+            {
+                Console.Clear(); 
+            }
+            }
+        }
 
         private void MostrarSeccion(string titulo)
         {
