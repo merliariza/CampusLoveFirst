@@ -3,6 +3,7 @@ using CampusLove.Application.UI.User;
 using CampusLove.Application.Services;
 using CampusLove.Domain.Interfaces; 
 using System.Threading;
+using System.Text;
 
 internal class Program
 {
@@ -34,6 +35,7 @@ internal class Program
 
     static void Main(string[] args)
     {
+        Console.OutputEncoding = Encoding.UTF8;
         string connStr = "Host=localhost;Database=db_campuslove;Port=5432;Username=postgres;password=root123;Pooling=true;";
         IDbfactory factory = new NpgsqlDbFactory(connStr);
 
@@ -59,7 +61,6 @@ internal class Program
             {
                 case 1:
                     Console.Clear();
-                    // PASAR TODOS LOS SERVICIOS QUE ESPERA LoginUser
                     var login = new LoginUser(
                         userService,
                         userInterestsService,

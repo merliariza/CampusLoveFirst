@@ -1,8 +1,9 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using CampusLove.Domain.Entities;
 using CampusLove.Application.Services;
-using CampusLove.Application.Utils;
+
 namespace CampusLove.Application.UI.User
 {
     public class ViewMyProfile
@@ -16,12 +17,12 @@ namespace CampusLove.Application.UI.User
         private readonly dynamic _currentUser;
 
         public ViewMyProfile(UserService userService,
-                           UsersInterestsService usersInterestsService,
-                           InterestsService interestsService,
-                           GendersService gendersService,
-                           CareersService careersService,
-                           AddressesService addressesService,
-                           dynamic currentUser)
+                             UsersInterestsService usersInterestsService,
+                             InterestsService interestsService,
+                             GendersService gendersService,
+                             CareersService careersService,
+                             AddressesService addressesService,
+                             dynamic currentUser)
         {
             _userService = userService;
             _usersInterestsService = usersInterestsService;
@@ -32,51 +33,58 @@ namespace CampusLove.Application.UI.User
             _currentUser = currentUser;
         }
 
-       public void ShowMyProfile()
+        public string ProfileTitle()
+        {
+            return "";
+        }
+
+        public string GetMyProfileString()
         {
             Console.Clear();
-
             var user = _userService.ObtenerPorId(_currentUser.id_user);
             if (user == null)
             {
-                Console.WriteLine("❌ Error: No se pudo cargar tu perfil.");
-                Console.WriteLine("\nPresione cualquier tecla para continuar...");
-                Console.ReadKey();
-                return;
+                return
+            @"❌ Error: No se pudo cargar tu perfil.";
             }
 
-            // El resto queda igual...
             var gender = _gendersService.GetById(user.id_gender)?.genre_name ?? "No especificado";
             var career = _careersService.GetById(user.id_career)?.career_name ?? "No especificado";
             var address = _addressesService.GetFullAddress(user.id_address);
+
             var userInterests = (IEnumerable<UsersInterests>)_usersInterestsService.GetUserInterests(user.id_user);
             var interests = userInterests
                 .Select(ui => _interestsService.GetById(ui.id_interest)?.interest_name)
                 .Where(i => i != null);
+            string interestsList = string.Join(Environment.NewLine,
+                interests.Select(i => "                        - " + i)); 
+            Console.InputEncoding = System.Text.Encoding.UTF8;
+            return
+            $@"
+                ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
+                ███████████████████████████████████████████████████████████████████
+                ███─▄▄▄─██▀▄─██▄─▀█▀─▄█▄─▄▄─█▄─██─▄█─▄▄▄▄█▄─▄███─▄▄─█▄─█─▄█▄─▄▄─███
+                ███─███▀██─▀─███─█▄█─███─▄▄▄██─██─██▄▄▄▄─██─██▀█─██─██▄▀▄███─▄█▀███
+                ▀▀▀▄▄▄▄▄▀▄▄▀▄▄▀▄▄▄▀▄▄▄▀▄▄▄▀▀▀▀▄▄▄▄▀▀▄▄▄▄▄▀▄▄▄▄▄▀▄▄▄▄▀▀▀▄▀▀▀▄▄▄▄▄▀▀▀
+                                    
+                                    𝚃𝚞 𝚒𝚗𝚏𝚘𝚛𝚖𝚊𝚌𝚒𝚘́𝚗 𝚙𝚎𝚛𝚜𝚘𝚗𝚊𝚕
 
-            // Mostrar perfil...
-            Console.WriteLine("♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥");
-            Console.WriteLine("\nTU PERFIL");
-            Console.WriteLine("\n♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥");
+                    👤 Nombre: {user.first_name} {user.last_name}
+                    🎂 Edad: {CalculateAge(user.birth_date)} años
+                    📧 Email: {user.email}
+                    🚻 Género: {gender}
+                    🎓 Carrera: {career}
 
-            Console.WriteLine($"\n👤 Nombre: {user.first_name} {user.last_name}");
-            Console.WriteLine($"🎂 Edad: {CalculateAge(user.birth_date)} años");
-            Console.WriteLine($"📧 Email: {user.email}");
-            Console.WriteLine($"🚻 Género: {gender}");
-            Console.WriteLine($"🎓 Carrera: {career}");
-            Console.WriteLine($"\n💬 Frase de perfil: \"{user.profile_phrase}\"");
-            Console.WriteLine($"\n🏠 Ubicación: {address}");
-            Console.WriteLine("\n❤️ Intereses:");
-            foreach (var interest in interests)
-            {
-                Console.WriteLine($"- {interest}");
-            }
+                    💬 Frase de perfil: ""{user.profile_phrase}""
 
-            Console.WriteLine("\n♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥");
-            Console.WriteLine("\nPresione cualquier tecla para volver al menú...");
-            Console.ReadKey();
+                    🏠 Ubicación: {address}
+
+                    ❤️ Intereses:
+{interestsList}
+
+                ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
+";
         }
-
 
         private int CalculateAge(DateTime birthDate)
         {

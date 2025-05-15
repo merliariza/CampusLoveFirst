@@ -18,22 +18,28 @@ namespace CampusLove.Application.Services
             _connStr = connStr ?? throw new ArgumentNullException(nameof(connStr));
         }
 
-        public string GetFullAddress(int idAddress)
+       public string GetFullAddress(int idAddress)
         {
             var address = _repository.GetById(idAddress);
             if (address == null)
                 return "Dirección no especificada";
 
             var city = _repository.GetCityById(address.id_city);
-            if (city == null) return "Ciudad no especificada";
+            var state = city != null ? _repository.GetStateById(city.id_state) : null;
+            var country = state != null ? _repository.GetCountryById(state.id_country) : null;
 
-            var state = _repository.GetStateById(city.id_state);
-            if (state == null) return "Estado no especificado";
+            var parts = new List<string>();
 
-            var country = _repository.GetCountryById(state.id_country);
-            if (country == null) return "País no especificado";
+            if (city != null && !string.IsNullOrWhiteSpace(city.city_name))
+                parts.Add(city.city_name);
 
-            return $"{address.street_name} {address.street_number}, {city.city_name}, {state.state_name}, {country.name_country}";
+            if (state != null && !string.IsNullOrWhiteSpace(state.state_name))
+                parts.Add(state.state_name);
+
+            if (country != null && !string.IsNullOrWhiteSpace(country.name_country))
+                parts.Add(country.name_country);
+
+            return string.Join(", ", parts);
         }
 
         public IEnumerable<Addresses> GetAll()

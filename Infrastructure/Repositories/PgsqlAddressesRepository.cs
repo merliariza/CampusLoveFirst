@@ -66,7 +66,7 @@ namespace CampusLove.Infrastructure.Repositories
             using var connection = new NpgsqlConnection(_connectionString);
             connection.Open();
 
-            var command = new NpgsqlCommand("SELECT id_city, city_name FROM cities WHERE id_city = @id", connection);
+            var command = new NpgsqlCommand("SELECT id_city, city_name, id_state FROM cities WHERE id_city = @id", connection);
             command.Parameters.AddWithValue("@id", id);
 
             using var reader = command.ExecuteReader();
@@ -75,7 +75,8 @@ namespace CampusLove.Infrastructure.Repositories
                 return new Cities
                 {
                     id_city = reader.GetInt32(0),
-                    city_name = reader.GetString(1)
+                    city_name = reader.GetString(1),
+                    id_state = reader.GetInt32(2)
                 };
             }
 
@@ -87,7 +88,7 @@ namespace CampusLove.Infrastructure.Repositories
             using var connection = new NpgsqlConnection(_connectionString);
             connection.Open();
 
-            var command = new NpgsqlCommand("SELECT id_state, state_name FROM states WHERE id_state = @id", connection);
+            var command = new NpgsqlCommand("SELECT id_state, state_name, id_country FROM states WHERE id_state = @id", connection);
             command.Parameters.AddWithValue("@id", id);
 
             using var reader = command.ExecuteReader();
@@ -96,7 +97,8 @@ namespace CampusLove.Infrastructure.Repositories
                 return new States
                 {
                     id_state = reader.GetInt32(0),
-                    state_name = reader.GetString(1)
+                    state_name = reader.GetString(1),
+                    id_country = reader.GetInt32(2)  
                 };
             }
 
