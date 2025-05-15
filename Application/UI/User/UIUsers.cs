@@ -33,6 +33,7 @@ namespace CampusLove.Application.UI.User
 
         public string InitialMenu()
         {
+            Console.Clear();
             return @$"
                 ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
                     ███████████████████████████████████████████████████████████████████

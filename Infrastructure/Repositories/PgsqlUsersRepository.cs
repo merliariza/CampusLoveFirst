@@ -20,8 +20,8 @@ namespace CampusLove.Domain.Interfaces
                           VALUES (@first_name, @last_name , @email , @password, @birth_date, @id_gender, @id_career, @id_address, @profile_phrase)";
             using var command = new NpgsqlCommand(query, connection);
             command.Parameters.AddWithValue("@first_name", Users.first_name);
-            command.Parameters.AddWithValue("@last_name", Users.last_name); // Corregido espacio extra
-            command.Parameters.AddWithValue("@email", Users.email); // Corregido espacio extra
+            command.Parameters.AddWithValue("@last_name", Users.last_name); 
+            command.Parameters.AddWithValue("@email", Users.email); 
             command.Parameters.AddWithValue("@password", Users.password);
             command.Parameters.AddWithValue("@birth_date", Users.birth_date);
             command.Parameters.AddWithValue("@id_gender", Users.id_gender);
