@@ -34,7 +34,6 @@ namespace CampusLove.Application.UI.User
             CapturarDatosAcademicos(user);
             CapturarDireccion(user);
             
-            // Crear el usuario y obtener el usuario completo con ID
             _servicio.CrearUser(user);
             var usuarioCreado = _servicio.GetByEmail(user.email);
             
@@ -241,51 +240,60 @@ namespace CampusLove.Application.UI.User
                 }
 
                 var intereses = _interestsService.GetAll()
-                .Where(i => i.id_category == id_categoria)
-                .ToList();
+                    .Where(i => i.id_category == id_categoria)
+                    .ToList();
 
-            if (!intereses.Any())
-            {
-                Console.WriteLine("No hay intereses disponibles para esta categoría.");
-                continue;
-            }
-
-            Console.WriteLine("Seleccione un interés:");
-            for (int idx = 0; idx < intereses.Count; idx++)
-            {
-                Console.WriteLine($"{idx + 1}. {intereses[idx].interest_name}");
-            }
-
-            int opcionInterest;
-            while (true)
-            {
-                Console.Write("Opción: ");
-                if (int.TryParse(Console.ReadLine(), out opcionInterest) 
-                    && opcionInterest >= 1 && opcionInterest <= intereses.Count)
+                if (!intereses.Any())
                 {
-                    break;
+                    Console.WriteLine("No hay intereses disponibles para esta categoría.");
+                    continue;
                 }
-                Console.WriteLine(" Opción inválida.");
-            }
 
-            int id_interest = intereses[opcionInterest - 1].id_interest;
+                Console.WriteLine("Seleccione un interés:");
+                for (int idx = 0; idx < intereses.Count; idx++)
+                {
+                    Console.WriteLine($"{idx + 1}. {intereses[idx].interest_name}");
+                }
 
-            try
-            {
-                _usersInterestsService.Guardar(user.id_user, id_interest);
-                Console.WriteLine("✅ Interés agregado correctamente.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Error al agregar interés: {ex.Message}");
-            }
-             Console.Write("¿Desea agregar otro interés? (s/n): ");
+                int opcionInterest;
+                while (true)
+                {
+                    Console.Write("Opción: ");
+                    if (int.TryParse(Console.ReadLine(), out opcionInterest) 
+                        && opcionInterest >= 1 && opcionInterest <= intereses.Count)
+                    {
+                        break;
+                    }
+                    Console.WriteLine(" Opción inválida.");
+                }
+
+                int id_interest = intereses[opcionInterest - 1].id_interest;
+
+                if (_usersInterestsService.TieneInteres(user.id_user, id_interest))
+                {
+                    Console.WriteLine("⚠️ Ya tienes este interés asociado. Intenta con otro.");
+                }
+                else
+                {
+                    try
+                    {
+                        _usersInterestsService.Guardar(user.id_user, id_interest);
+                        Console.WriteLine("✅ Interés agregado correctamente.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"❌ Error al agregar interés: {ex.Message}");
+                    }
+                }
+
+                Console.Write("¿Desea agregar otro interés? (s/n): ");
                 string respuesta = Console.ReadLine()?.Trim().ToLower();
                 agregarOtro = respuesta == "s";
-            if (!agregarOtro) 
-            {
-                Console.Clear(); 
-            }
+
+                if (!agregarOtro)
+                {
+                    Console.Clear();
+                }
             }
         }
 

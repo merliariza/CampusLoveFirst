@@ -6,5 +6,6 @@ namespace CampusLove.Domain.Interfaces
     {
         void AddUserInterest(int id_user, int id_interest);
         void AddUserInterests(int id_user, IEnumerable<int> interests);
+        IEnumerable<UsersInterests> GetByUserId(int userId);
     }
 }

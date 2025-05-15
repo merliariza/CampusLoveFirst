@@ -1,6 +1,7 @@
 using CampusLove.Domain.Entities;
 using CampusLove.Domain.Interfaces;
-using Npgsql; 
+using Npgsql;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,12 +10,30 @@ namespace CampusLove.Application.Services
     public class AddressesService
     {
         private readonly IAddressesRepository _repository;
-        private readonly string _connStr;  
+        private readonly string _connStr;
 
         public AddressesService(IAddressesRepository repository, string connStr)
         {
-            _repository = repository;
-            _connStr = connStr;  
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _connStr = connStr ?? throw new ArgumentNullException(nameof(connStr));
+        }
+
+        public string GetFullAddress(int idAddress)
+        {
+            var address = _repository.GetById(idAddress);
+            if (address == null)
+                return "Dirección no especificada";
+
+            var city = _repository.GetCityById(address.id_city);
+            if (city == null) return "Ciudad no especificada";
+
+            var state = _repository.GetStateById(city.id_state);
+            if (state == null) return "Estado no especificado";
+
+            var country = _repository.GetCountryById(state.id_country);
+            if (country == null) return "País no especificado";
+
+            return $"{address.street_name} {address.street_number}, {city.city_name}, {state.state_name}, {country.name_country}";
         }
 
         public IEnumerable<Addresses> GetAll()
@@ -29,6 +48,7 @@ namespace CampusLove.Application.Services
 
         public void CrearAddress(Addresses address)
         {
+            if (address == null) throw new ArgumentNullException(nameof(address));
             _repository.Create(address);
         }
 
@@ -36,7 +56,7 @@ namespace CampusLove.Application.Services
         {
             return _repository.GetAllCountries().ToList();
         }
-        
+
         public IEnumerable<States> GetStatesByCountry(int id_country)
         {
             return _repository.GetStatesByCountry(id_country).ToList();
@@ -49,20 +69,21 @@ namespace CampusLove.Application.Services
 
         public int ObtenerOCrearDireccion(Addresses nuevaDireccion)
         {
+            if (nuevaDireccion == null) throw new ArgumentNullException(nameof(nuevaDireccion));
+
             if (string.IsNullOrWhiteSpace(nuevaDireccion.street_number))
-            {
                 throw new Exception("El número de calle no puede ser vacío o nulo.");
-            }
 
             if (string.IsNullOrWhiteSpace(nuevaDireccion.street_name))
-            {
                 throw new Exception("El nombre de la calle no puede ser vacío o nulo.");
-            }
 
             using var connection = new NpgsqlConnection(_connStr);
             connection.Open();
 
-            var command = new NpgsqlCommand("INSERT INTO addresses (id_city, street_number, street_name) VALUES (@id_city, @street_number, @street_name) RETURNING id_address", connection);
+            using var command = new NpgsqlCommand(
+                "INSERT INTO addresses (id_city, street_number, street_name) VALUES (@id_city, @street_number, @street_name) RETURNING id_address",
+                connection);
+
             command.Parameters.AddWithValue("@id_city", nuevaDireccion.id_city);
             command.Parameters.AddWithValue("@street_number", nuevaDireccion.street_number);
             command.Parameters.AddWithValue("@street_name", nuevaDireccion.street_name);

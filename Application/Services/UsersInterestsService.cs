@@ -1,4 +1,5 @@
 using CampusLove.Domain.Interfaces;
+using CampusLove.Domain.Entities;
 using System.Collections.Generic;
 
 namespace CampusLove.Application.Services
@@ -9,7 +10,7 @@ namespace CampusLove.Application.Services
 
         public UsersInterestsService(IUsersInterestsRepository repository)
         {
-            _repository = repository;
+            _repository = repository ?? throw new System.ArgumentNullException(nameof(repository));
         }
 
         public void AsociarIntereses(int id_user, IEnumerable<int> intereses)
@@ -21,5 +22,23 @@ namespace CampusLove.Application.Services
         {
             _repository.AddUserInterest(userId, interesId);
         }
+
+        public IEnumerable<UsersInterests> GetUserInterests(int userId)
+        {
+            return _repository.GetByUserId(userId);
+        }
+        public bool TieneInteres(int userId, int interesId)
+        {
+            var intereses = _repository.GetByUserId(userId);
+            foreach (var interes in intereses)
+            {
+                if (interes.id_interest == interesId)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
     }
 }
