@@ -9,5 +9,6 @@ namespace CampusLove.Domain.Interfaces
         ICareersRepository CreateCareersRepository();
         IGendersRepository CreateGendersRepository();
         IInterestsRepository CreateInterestsRepository();
+        IUsersInterestsRepository CreateUsersInterestsRepository();
     }
 }

@@ -6,10 +6,26 @@ namespace CampusLove.Application.UI.User
     public class LoginUser
     {
         private readonly UserService _userService;
+        private readonly UsersInterestsService _usersInterestsService;
+        private readonly InterestsService _interestsService;
+        private readonly GendersService _gendersService;
+        private readonly CareersService _careersService;
+        private readonly AddressesService _addressesService;
 
-        public LoginUser(UserService userService)
+        public LoginUser(
+            UserService userService,
+            UsersInterestsService usersInterestsService,
+            InterestsService interestsService,
+            GendersService gendersService,
+            CareersService careersService,
+            AddressesService addressesService)
         {
             _userService = userService;
+            _usersInterestsService = usersInterestsService;
+            _interestsService = interestsService;
+            _gendersService = gendersService;
+            _careersService = careersService;
+            _addressesService = addressesService;
         }
 
         public void Ejecutar()
@@ -25,6 +41,7 @@ namespace CampusLove.Application.UI.User
             if (usuario == null)
             {
                 Console.WriteLine("Usuario no encontrado. Regístrate primero.");
+                Console.ReadKey();
                 return;
             }
 
@@ -38,7 +55,15 @@ namespace CampusLove.Application.UI.User
 
                 if (usuario.password == password)
                 {
-                    var uiUsers = new UIUsers(_userService, usuario);
+                    Console.Clear();
+                    var uiUsers = new UIUsers(
+                        _userService,
+                        _usersInterestsService,
+                        _interestsService,
+                        _gendersService,
+                        _careersService,
+                        _addressesService,
+                        usuario);
                     uiUsers.Ejecutar();
                     return;
                 }
@@ -46,13 +71,12 @@ namespace CampusLove.Application.UI.User
                 {
                     intentos++;
                     if (intentos < maxIntentos)
-                    {
                         Console.WriteLine("Contraseña incorrecta. Intenta nuevamente.");
-                    }
                 }
             }
 
             Console.WriteLine("Has excedido el número de intentos permitidos. Intenta más tarde.");
+            Console.ReadKey();
         }
     }
 }

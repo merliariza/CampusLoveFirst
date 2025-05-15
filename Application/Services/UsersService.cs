@@ -12,11 +12,13 @@ namespace CampusLove.Application.Services
         _repository = repository;
     }
 
-    public void CrearUser(Users user)
+    public int CrearUser(Users user)
     {
         _repository.Create(user);
+        var usuarioCreado = _repository.GetByEmail(user.email);
+        return usuarioCreado?.id_user ?? 0;
     }
-
+    
     public Users? ObtenerPorId(int id)
     {
         return _repository.GetById(id);
