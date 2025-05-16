@@ -42,7 +42,7 @@ namespace CampusLove.Domain.Interfaces
         {
             return new PgsqlInteractionsRepository(_connectionString);
         }
-        public IInteractionCreditsRepository CreateInteractionCreditsRepository()
+        public IInteractionsCreditsRepository CreateInteractionCreditsRepository()
         {
             return new PgsqlInteractionCreditsRepository(_connectionString);
         }

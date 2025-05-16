@@ -11,8 +11,12 @@ namespace CampusLove.Application.UI.User
         private readonly GendersService _gendersService;
         private readonly CareersService _careersService;
         private readonly AddressesService _addressesService;
+        private readonly InteractionsService _interactionsService;
+        private readonly InteractionCreditsService _creditsService;
+        private readonly MatchesService _matchesService;
         private readonly dynamic _usuario;
 
+                
         public UIUsers(
             UserService userService,
             UsersInterestsService usersInterestsService,
@@ -20,6 +24,9 @@ namespace CampusLove.Application.UI.User
             GendersService gendersService,
             CareersService careersService,
             AddressesService addressesService,
+            InteractionsService interactionsService,
+            InteractionCreditsService creditsService,
+            MatchesService matchesService,
             dynamic usuario)
         {
             _userService = userService;
@@ -28,12 +35,17 @@ namespace CampusLove.Application.UI.User
             _gendersService = gendersService;
             _careersService = careersService;
             _addressesService = addressesService;
+            _interactionsService = interactionsService;
+            _creditsService = creditsService;
+            _matchesService = matchesService;
             _usuario = usuario;
         }
 
         public string InitialMenu()
         {
             Console.Clear();
+            var creditos = _creditsService.GetAvailableCredits((int)_usuario.id_user);
+
             return @$"
                 ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
                     ███████████████████████████████████████████████████████████████████
@@ -42,7 +54,7 @@ namespace CampusLove.Application.UI.User
                     ▀▀▀▄▄▄▄▄▀▄▄▀▄▄▀▄▄▄▀▄▄▄▀▄▄▄▀▀▀▀▄▄▄▄▀▀▄▄▄▄▄▀▄▄▄▄▄▀▄▄▄▄▀▀▀▄▀▀▀▄▄▄▄▄▀▀▀
                                               
                             Bienvenido, {_usuario.first_name} {_usuario.last_name}!  
-                            Créditos disponibles hoy: _usuario.credits
+                            Créditos disponibles hoy: {creditos}
                             
                             1. Ver perfiles y dar Like o Dislike      
                             2. Ver mis coincidencias (Matches)        
@@ -52,60 +64,69 @@ namespace CampusLove.Application.UI.User
                 ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥";
         }
 
-            public void Ejecutar()
-    {
-        while (true)
+        public void Ejecutar()
         {
-            Console.Clear();
-            Console.WriteLine(InitialMenu());
-            Console.Write("Seleccione una opción: ");
-            var input = Console.ReadLine();
-
-            if (string.IsNullOrWhiteSpace(input)) continue;
-
-            switch (input)
+            while (true)
             {
-                case "1":
                 Console.Clear();
-                    var viewer = new ProfileViewer(
-                        _userService,
-                        _usersInterestsService,
-                        _interestsService,
-                        _gendersService,
-                        _careersService,
-                        _addressesService,
-                        _usuario);
-                    viewer.BrowseProfiles();
-                    break;
-                case "2":
-                    Console.WriteLine("Funcionalidad para ver mis coincidencias.");
-                    break;
-                case "3":
-                    Console.WriteLine("Funcionalidad para ver estadísticas.");
-                    break;
-                case "4":
-                Console.Clear();
-                    var viewProfile = new ViewMyProfile(
-                        _userService,
-                        _usersInterestsService,
-                        _interestsService,
-                        _gendersService,
-                        _careersService,
-                        _addressesService,
-                        _usuario);
-                    Console.WriteLine(viewProfile.GetMyProfileString());
-                    break;
-                case "0":
-                    return;
-                default:
-                    Console.WriteLine("Opción no válida.");
-                    break;
-            }
+                Console.WriteLine(InitialMenu());
+                Console.Write("Seleccione una opción: ");
+                var input = Console.ReadLine();
 
-            Console.WriteLine("Presione cualquier tecla para continuar...");
-            Console.ReadKey();
+                if (string.IsNullOrWhiteSpace(input)) continue;
+
+                switch (input)
+                {
+                    case "1":
+                        Console.Clear();
+                        var viewer = new ProfileViewer(
+                        _userService,
+                        _usersInterestsService,
+                        _interestsService,
+                        _gendersService,
+                        _careersService,
+                        _addressesService,
+                        _interactionsService,
+                        _creditsService,
+                        _matchesService,
+                        _usuario);
+                        viewer.BrowseProfiles();
+                        break;
+
+                    case "2":
+                        Console.Clear();
+                        Console.WriteLine("♥♥♥♥♥♥ MIS COINCIDENCIAS ♥♥♥♥♥♥");
+                        break;
+
+                    case "3":
+                        Console.Clear();
+                        Console.WriteLine("♥♥♥♥♥♥ ESTADÍSTICAS DEL SISTEMA ♥♥♥♥♥♥");
+                        break;
+
+                    case "4":
+                        Console.Clear();
+                        var viewProfile = new ViewMyProfile(
+                            _userService,
+                            _usersInterestsService,
+                            _interestsService,
+                            _gendersService,
+                            _careersService,
+                            _addressesService,
+                            _usuario);
+                        Console.WriteLine(viewProfile.GetMyProfileString());
+                        break;
+
+                    case "0":
+                        return;
+
+                    default:
+                        Console.WriteLine("Opción no válida.");
+                        break;
+                }
+
+                Console.WriteLine("Presione cualquier tecla para continuar...");
+                Console.ReadKey();
+            }
         }
     }
-}
-
 }

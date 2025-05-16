@@ -11,6 +11,9 @@ namespace CampusLove.Application.UI.User
         private readonly GendersService _gendersService;
         private readonly CareersService _careersService;
         private readonly AddressesService _addressesService;
+       private readonly InteractionsService _interactionsService;
+        private readonly InteractionCreditsService _creditsService;
+        private readonly MatchesService _matchesService;
 
         public LoginUser(
             UserService userService,
@@ -18,7 +21,10 @@ namespace CampusLove.Application.UI.User
             InterestsService interestsService,
             GendersService gendersService,
             CareersService careersService,
-            AddressesService addressesService)
+            AddressesService addressesService,
+            InteractionsService interactionsService,
+            InteractionCreditsService creditsService,
+            MatchesService matchesService)
         {
             _userService = userService;
             _usersInterestsService = usersInterestsService;
@@ -26,6 +32,9 @@ namespace CampusLove.Application.UI.User
             _gendersService = gendersService;
             _careersService = careersService;
             _addressesService = addressesService;
+            _interactionsService = interactionsService;
+            _creditsService = creditsService;
+            _matchesService = matchesService;
         }
 
         public void Ejecutar()
@@ -57,13 +66,17 @@ namespace CampusLove.Application.UI.User
                 {
                     Console.Clear();
                     var uiUsers = new UIUsers(
-                        _userService,
-                        _usersInterestsService,
-                        _interestsService,
-                        _gendersService,
-                        _careersService,
-                        _addressesService,
-                        usuario);
+                    _userService,
+                    _usersInterestsService,
+                    _interestsService,
+                    _gendersService,
+                    _careersService,
+                    _addressesService,
+                    _interactionsService,
+                    _creditsService,
+                    _matchesService,
+                    usuario);
+
                     uiUsers.Ejecutar();
                     return;
                 }

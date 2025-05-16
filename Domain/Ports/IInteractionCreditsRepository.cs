@@ -2,7 +2,7 @@ using CampusLove.Domain.Entities;
 
 namespace CampusLove.Domain.Interfaces
 {
-    public interface IInteractionCreditsRepository
+    public interface IInteractionsCreditsRepository
     {
         int GetCreditsByUserId(int userId);
         void UpdateCredits(int userId, int creditChange);
