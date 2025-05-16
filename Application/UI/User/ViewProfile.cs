@@ -39,53 +39,58 @@ namespace CampusLove.Application.UI.User
         }
 
         public string GetMyProfileString()
-        {
-            Console.Clear();
-            var user = _userService.ObtenerPorId(_currentUser.id_user);
-            if (user == null)
-            {
-                return
-            @"❌ Error: No se pudo cargar tu perfil.";
-            }
+{
+    Console.Clear();
+    var user = _userService.ObtenerPorId(_currentUser.id_user);
+    if (user == null)
+    {
+        return
+@"❌ Error: No se pudo cargar tu perfil.";
+    }
 
-            var gender = _gendersService.GetById(user.id_gender)?.genre_name ?? "No especificado";
-            var career = _careersService.GetById(user.id_career)?.career_name ?? "No especificado";
-            var address = _addressesService.GetFullAddress(user.id_address);
+    var gender = _gendersService.GetById(user.id_gender)?.genre_name ?? "No especificado";
+    var career = _careersService.GetById(user.id_career)?.career_name ?? "No especificado";
+    var address = _addressesService.GetFullAddress(user.id_address);
 
-            var userInterests = (IEnumerable<UsersInterests>)_usersInterestsService.GetUserInterests(user.id_user);
-            var interests = userInterests
-                .Select(ui => _interestsService.GetById(ui.id_interest)?.interest_name)
-                .Where(i => i != null);
-            string interestsList = string.Join(Environment.NewLine,
-                interests.Select(i => "                        - " + i)); 
-            Console.InputEncoding = System.Text.Encoding.UTF8;
-            Console.Clear();
-            return
-            $@"
-                ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
-                ███████████████████████████████████████████████████████████████████
-                ███─▄▄▄─██▀▄─██▄─▀█▀─▄█▄─▄▄─█▄─██─▄█─▄▄▄▄█▄─▄███─▄▄─█▄─█─▄█▄─▄▄─███
-                ███─███▀██─▀─███─█▄█─███─▄▄▄██─██─██▄▄▄▄─██─██▀█─██─██▄▀▄███─▄█▀███
-                ▀▀▀▄▄▄▄▄▀▄▄▀▄▄▀▄▄▄▀▄▄▄▀▄▄▄▀▀▀▀▄▄▄▄▀▀▄▄▄▄▄▀▄▄▄▄▄▀▄▄▄▄▀▀▀▄▀▀▀▄▄▄▄▄▀▀▀
-                                    
-                                    𝚃𝚞 𝚒𝚗𝚏𝚘𝚛𝚖𝚊𝚌𝚒𝚘́𝚗 𝚙𝚎𝚛𝚜𝚘𝚗𝚊𝚕
+    var creditosDisponibles = _userService.ObtenerCreditosDisponibles(user.id_user);
 
-                    👤 Nombre: {user.first_name} {user.last_name}
-                    🎂 Edad: {CalculateAge(user.birth_date)} años
-                    📧 Email: {user.email}
-                    🚻 Género: {gender}
-                    🎓 Carrera: {career}
+    var userInterests = (IEnumerable<UsersInterests>)_usersInterestsService.GetUserInterests(user.id_user);
+    var interests = userInterests
+        .Select(ui => _interestsService.GetById(ui.id_interest)?.interest_name)
+        .Where(i => i != null);
+    string interestsList = string.Join(Environment.NewLine,
+        interests.Select(i => "                        - " + i));
 
-                    💬 Frase de perfil: ""{user.profile_phrase}""
+    Console.InputEncoding = System.Text.Encoding.UTF8;
+    Console.Clear();
+    return
+    $@"
+        ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
+        ███████████████████████████████████████████████████████████████████
+        ███─▄▄▄─██▀▄─██▄─▀█▀─▄█▄─▄▄─█▄─██─▄█─▄▄▄▄█▄─▄███─▄▄─█▄─█─▄█▄─▄▄─███
+        ███─███▀██─▀─███─█▄█─███─▄▄▄██─██─██▄▄▄▄─██─██▀█─██─██▄▀▄███─▄█▀███
+        ▀▀▀▄▄▄▄▄▀▄▄▀▄▄▀▄▄▄▀▄▄▄▀▄▄▄▀▀▀▀▄▄▄▄▀▀▄▄▄▄▄▀▄▄▄▄▄▀▄▄▄▄▀▀▀▄▀▀▀▄▄▄▄▄▀▀▀
+                                
+                                𝚃𝚞 𝚒𝚗𝚏𝚘𝚛𝚖𝚊𝚌𝚒𝚘́𝚗 𝚙𝚎𝚛𝚜𝚘𝚗𝚊𝚕
 
-                    🏠 Ubicación: {address}
+            👤 Nombre: {user.first_name} {user.last_name}
+            🎂 Edad: {CalculateAge(user.birth_date)} años
+            📧 Email: {user.email}
+            🚻 Género: {gender}
+            🎓 Carrera: {career}
 
-                    ❤️ Intereses:
+            💬 Frase de perfil: ""{user.profile_phrase}""
+
+            🏠 Ubicación: {address}
+
+            💰 Créditos disponibles hoy: {creditosDisponibles}
+
+            ❤️ Intereses:
 {interestsList}
 
-                ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
+        ♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
 ";
-        }
+}
 
         private int CalculateAge(DateTime birthDate)
         {

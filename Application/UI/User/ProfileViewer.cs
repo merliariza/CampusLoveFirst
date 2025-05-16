@@ -14,6 +14,9 @@ namespace CampusLove.Application.UI.User
         private readonly GendersService _gendersService;
         private readonly CareersService _careersService;
         private readonly AddressesService _addressesService;
+        private readonly InteractionsService _interactionsService;
+        private readonly InteractionCreditsService _creditsService;
+        private readonly MatchesService _matchesService;
         private readonly dynamic _currentUser;
 
         public ProfileViewer(UserService userService,
@@ -22,6 +25,9 @@ namespace CampusLove.Application.UI.User
                              GendersService gendersService,
                              CareersService careersService,
                              AddressesService addressesService,
+                             InteractionsService interactionsService,
+                             InteractionCreditsService creditsService,
+                             MatchesService matchesService,
                              dynamic currentUser)
         {
             _userService = userService;
@@ -30,6 +36,9 @@ namespace CampusLove.Application.UI.User
             _gendersService = gendersService;
             _careersService = careersService;
             _addressesService = addressesService;
+            _interactionsService = interactionsService;
+            _creditsService = creditsService;
+            _matchesService = matchesService;
             _currentUser = currentUser;
         }
 
@@ -37,9 +46,7 @@ namespace CampusLove.Application.UI.User
         {
             Console.Clear();
             var allUsers = _userService.ObtenerTodos();
-            var otherUsers = allUsers
-                .Where(u => u.id_user != _currentUser.id_user)
-                .ToList();
+            var otherUsers = allUsers.Where(u => u.id_user != _currentUser.id_user).ToList();
 
             if (!otherUsers.Any())
             {
@@ -48,6 +55,7 @@ namespace CampusLove.Application.UI.User
             }
 
             int index = 0;
+            _creditsService.CheckAndResetCredits(_currentUser.id_user);
 
             while (true)
             {
@@ -68,9 +76,25 @@ namespace CampusLove.Application.UI.User
                 switch (option)
                 {
                     case "L":
-                        Console.WriteLine($"💖 Diste like a {user.first_name}.");
+                        if (_creditsService.GetAvailableCredits(_currentUser.id_user) > 0)
+                        {
+                            _interactionsService.RegisterInteraction(_currentUser.id_user, user.id_user, "like");
+                            _creditsService.DecrementCredit(_currentUser.id_user);
+                            Console.WriteLine($"💖 Diste like a {user.first_name}.");
+
+                            if (_interactionsService.IsMutualLike(_currentUser.id_user, user.id_user))
+                            {
+                                _matchesService.CreateMatch(_currentUser.id_user, user.id_user);
+                                Console.WriteLine("🎉 ¡Es un match!");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("⚠️ Créditos agotados. Vuelve mañana para seguir dando likes.");
+                        }
                         break;
                     case "D":
+                        _interactionsService.RegisterInteraction(_currentUser.id_user, user.id_user, "dislike");
                         Console.WriteLine($"👎 Diste dislike a {user.first_name}.");
                         break;
                     case "N":
@@ -85,7 +109,6 @@ namespace CampusLove.Application.UI.User
                         Console.WriteLine("⚠️ Opción no válida.");
                         break;
                 }
-
                 Console.WriteLine("Presiona una tecla para continuar...");
                 Console.ReadKey();
             }
@@ -96,11 +119,9 @@ namespace CampusLove.Application.UI.User
             var gender = _gendersService.GetById(user.id_gender)?.genre_name ?? "No especificado";
             var career = _careersService.GetById(user.id_career)?.career_name ?? "No especificado";
             var address = _addressesService.GetFullAddress(user.id_address);
-
             var userInterests = (IEnumerable<UsersInterests>)_usersInterestsService.GetUserInterests(user.id_user);
-            var interests = userInterests
-                .Select(ui => _interestsService.GetById(ui.id_interest)?.interest_name)
-                .Where(i => i != null);
+            var interests = userInterests.Select(ui => _interestsService.GetById(ui.id_interest)?.interest_name)
+                                         .Where(i => i != null);
 
             string interestsList = string.Join(Environment.NewLine, interests.Select(i => "                        - " + i));
 
