@@ -85,6 +85,25 @@ namespace CampusLove.Infrastructure.Repositories
 
             return list;
         }
+        public void Update(Interactions interaction)
+        {
+            using var conn = new NpgsqlConnection(_connectionString);
+            conn.Open();
+
+            var sql = @"UPDATE interactions
+                        SET interaction_type = @interaction_type,
+                            interaction_date = @interaction_date
+                        WHERE id_user_origin = @id_user_origin
+                        AND id_user_target = @id_user_target";
+
+            using var cmd = new NpgsqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("interaction_type", interaction.interaction_type);
+            cmd.Parameters.AddWithValue("interaction_date", interaction.interaction_date);
+            cmd.Parameters.AddWithValue("id_user_origin", interaction.id_user_origin);
+            cmd.Parameters.AddWithValue("id_user_target", interaction.id_user_target);
+
+            cmd.ExecuteNonQuery();
+        }
 
         public IEnumerable<Interactions> GetByDate(DateTime date)
         {
