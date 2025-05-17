@@ -190,11 +190,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\merli\\Downloads\\CampusLove\\CampusLove.csproj",
+      "projectUniqueName": "C:\\Users\\merli\\OneDrive\\Documents\\CampusLoveFirst\\CampusLove.csproj",
       "projectName": "CampusLove",
-      "projectPath": "C:\\Users\\merli\\Downloads\\CampusLove\\CampusLove.csproj",
+      "projectPath": "C:\\Users\\merli\\OneDrive\\Documents\\CampusLoveFirst\\CampusLove.csproj",
       "packagesPath": "C:\\Users\\merli\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\merli\\Downloads\\CampusLove\\obj\\",
+      "outputPath": "C:\\Users\\merli\\OneDrive\\Documents\\CampusLoveFirst\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\merli\\AppData\\Roaming\\NuGet\\NuGet.Config"
